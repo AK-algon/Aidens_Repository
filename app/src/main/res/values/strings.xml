@@ -2,5 +2,10 @@
     <string name="app_name">Aiden\'s Android Labs</string>
     <string name="hello_message">Hello World!</string>
     <string name="button_message">I\'m a button</string>
+    <string name="editmessage">I\'m an EditText</string>
+    <string name="hinttext">Write something here</string>
+    <string name="switchtext">switch on or off</string>
+    <string name="chkboxtext">Check if you like pizza.</string>
+    <string name="radiotext">Do you want fries with that?</string>
 
 </resources>
