@@ -42,6 +42,7 @@ public class ChatRoom extends AppCompatActivity {
         chatList.setAdapter(adt);
         chatList.setLayoutManager(new LinearLayoutManager(this));
         edit.setText("");
+        MyOpenHelper opener = new MyOpenHelper();
 
         send.setOnClickListener( click -> {
             String whatIsTyped = edit.getText().toString();
