@@ -31,6 +31,9 @@ public class ChatRoom extends AppCompatActivity {
     EditText edit;
     MyChatAdapter adt;
     ArrayList<ChatMessage> messages = new ArrayList<>();
+    MyOpenHelper opener = new MyOpenHelper(this);
+    SQLiteDatabase db; //= opener.getWritableDatabase();
+    Cursor results; // = db.rawQuery("select * from " + MyOpenHelper.TABLE_NAME + ";", null);
 
 
     @Override
@@ -41,9 +44,8 @@ public class ChatRoom extends AppCompatActivity {
         send = findViewById(R.id.sendbutton);
         receive = findViewById(R.id.receivebutton);
         edit = findViewById(R.id.editTextTextPersonName);
-        MyOpenHelper opener = new MyOpenHelper(this);
-        SQLiteDatabase db = opener.getWritableDatabase();
-        Cursor results = db.rawQuery("select * from " + MyOpenHelper.TABLE_NAME + ";", null);
+        db = opener.getWritableDatabase();
+        results = db.rawQuery("select * from " + MyOpenHelper.TABLE_NAME + ";", null);
         adt = new MyChatAdapter();
         chatList.setAdapter(adt);
         chatList.setLayoutManager(new LinearLayoutManager(this));
@@ -129,12 +131,24 @@ public class ChatRoom extends AppCompatActivity {
                         ChatMessage removedMessage = messages.get(position);
                         messages.remove(position);
                         adt.notifyItemRemoved(position);
+
                         Snackbar.make(messageText, "You deleted message #" + position,Snackbar.LENGTH_LONG)
                             .setAction("UNDO",clk ->{
                                 messages.add(position, removedMessage);
                                 adt.notifyItemInserted(position);
+
+                                db.execSQL("insert into " + MyOpenHelper.TABLE_NAME + " values ('"
+                                       + removedMessage.getId()
+                                       + "','" + removedMessage.getMessage()
+                                        + "','" + removedMessage.getSendOrReceive()
+                                        + "','" + removedMessage.getTimeSent()
+                                        + "');");
+
                             })
                             .show();
+
+                        db.delete(MyOpenHelper.TABLE_NAME, "_id=?", new String[] {Long.toString(removedMessage.getId())});
+
                     })
                     .setNegativeButton("No", (Dialog, cl) -> {})
                     .create().show();
