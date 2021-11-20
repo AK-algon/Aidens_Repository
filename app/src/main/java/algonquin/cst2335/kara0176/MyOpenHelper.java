@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 public class MyOpenHelper extends SQLiteOpenHelper {
 
     public static final String name = "TheDatabase";
-    public static final int version = 1;
+    public static final int version = 2;
     public static final String TABLE_NAME = "Messages";
     public static final String col_message = "Message";
     public static final String col_send_receive = "SendOrReceive";
