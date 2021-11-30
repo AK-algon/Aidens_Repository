@@ -1,7 +1,12 @@
 package algonquin.cst2335.kara0176;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -9,12 +14,17 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,28 +71,58 @@ public class MainActivity extends AppCompatActivity {
     private Button forecastBtn = null;
     private String stringURL;
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar myToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, myToolbar, R.string.open, R.string.close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.popout_menu);
+        navigationView.setNavigationItemSelectedListener((item) -> {
+
+            onOptionsItemSelected(item);
+            drawer.closeDrawer(GravityCompat.START);
+            return false;
+
+        });
+
         tv = findViewById(R.id.textView);
         cityText = findViewById(R.id.cityTextField);
         forecastBtn = findViewById(R.id.forcastButton);
 
-        forecastBtn.setOnClickListener( clk -> {
+        forecastBtn.setOnClickListener(clk -> {
+
+            String cityName = cityText.getText().toString();
+            myToolbar.getMenu();
+            myToolbar.getMenu().add(1, 5, 10, cityText.getText()).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            runForecast(cityName);
+        });
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void runForecast(String cityName) {
 
             Executor newThread = Executors.newSingleThreadExecutor();
 
             newThread.execute( () -> { /* This runs in a separate thread */
 
-            try {
-                String cityName = cityText.getText().toString();
+                try {
+              //  String cityName = cityText.getText().toString();
 
                 stringURL = "https://api.openweathermap.org/data/2.5/weather?q="
                         + URLEncoder.encode(cityName, "UTF-8")
-                        + "&appid=7e943c97096a9784391a981c4d878b22";
+                        + "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
 
                 URL url = new URL(stringURL);
                 HttpURLConnection urlConnection = urlConnection = (HttpURLConnection) url.openConnection();
@@ -163,20 +203,68 @@ public class MainActivity extends AppCompatActivity {
 
         } );
 
+    }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_actions, menu);
 
+        return true;
+    }
 
-         //  String password = et.getText().toString();
-          //  if (checkPasswordComplexity(password)) {
-          //      tv.setText("Your password meets the requirements");
-          //  }
-          //  else {
-             //   tv.setText("You shall not pass!");
-         //   }
-         });
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        float oldSize = 14;
+        TextView currentTemp = findViewById(R.id.temp);
+        TextView minTemp = findViewById(R.id.minTemp);
+        TextView maxTemp = findViewById(R.id.maxTemp);
+        TextView humidity = findViewById(R.id.humidity);
+        TextView description = findViewById(R.id.description);
+        ImageView iv = findViewById(R.id.icon);
 
+        switch(item.getItemId()) {
+            case R.id.hide_views:
 
+                currentTemp.setVisibility(View.INVISIBLE);
+                minTemp.setVisibility(View.INVISIBLE);
+                maxTemp.setVisibility(View.INVISIBLE);
+                humidity.setVisibility(View.INVISIBLE);
+                description.setVisibility(View.INVISIBLE);
+                iv.setVisibility(View.INVISIBLE);
+                cityText.setText("");
+                break;
+
+            case R.id.id_increase:
+                oldSize++;
+                currentTemp.setTextSize(oldSize);
+                minTemp.setTextSize(oldSize);
+                maxTemp.setTextSize(oldSize);
+                humidity.setTextSize(oldSize);
+                description.setTextSize(oldSize);
+                cityText.setTextSize(oldSize);
+                break;
+
+            case R.id.id_decrease:
+                oldSize = Float.max(oldSize-1, 5);
+                currentTemp.setTextSize(oldSize);
+                minTemp.setTextSize(oldSize);
+                maxTemp.setTextSize(oldSize);
+                humidity.setTextSize(oldSize);
+                description.setTextSize(oldSize);
+                cityText.setTextSize(oldSize);
+                break;
+
+            case 5:
+                String cityName = item.getTitle().toString();
+                runForecast(cityName);
+
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

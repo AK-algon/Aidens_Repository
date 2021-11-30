@@ -2,5 +2,7 @@
     <string name="app_name">Aiden\'s Android Labs</string>
     <string name="hello_message">Type in the name of a city:</string>
     <string name="button_message">GET FORECAST</string>
+    <string name="open">1</string>
+    <string name="close">0</string>
 
 </resources>
